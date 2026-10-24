@@ -62,3 +62,11 @@ __pycache__/
 venv/
 env/
 .DS_Store
+
+# external datasets (not redistributed from this repo)
+external_data/
+cache/
+weights/
+*.parquet
+*.npz
+
