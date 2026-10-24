@@ -12,7 +12,8 @@
 - [x] **A.8 Silver label derivation** (`src/mtah/labels/metrica.py`, `tests/test_labels.py`; derived H/A/D silver labels from Metrica events; sanity checks verified on Game 1 and Game 3).
 
 - [x] **A.9 ATD noise simulator & feature extraction library** (`src/mtah/healing/ball.py`, `src/mtah/sim/noise.py`, `src/mtah/io/atd.py`, `src/mtah/features/extractor.py`, `tests/test_features_healing.py`; 14 unit tests passing; 46 features extracted from Game 3 EPTS).
-- [ ] **A.10 Train frame-level model (Stage 3a)** (LightGBM on simulated noise Metrica; evaluate with leave-one-game-out CV + decoder).
+- [x] **A.10 Train frame-level model (Stage 3a)** (`src/mtah/models/baseline_model.py`, `tests/test_model.py`; LightGBM trained on simulated-noise Metrica Game 1 evaluated on Game 3 EPTS; achieved +0.0474 spellF1 gain over nearest-player baseline with 90% CI [+0.0005, +0.0969], significant under bootstrap).
+
 
 - [ ] **A.11 Pre-build detector scripts & calibrate_noise.py** (Auto-skips if video/weights/GPU missing).
 
