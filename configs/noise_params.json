@@ -1,0 +1,8 @@
+{
+  "n_frames": 20000,
+  "ball_missing_fraction": 0.297,
+  "mean_missing_run_len": 258.2608695652174,
+  "median_missing_run_len": 194.0,
+  "mean_active_players": 22.0,
+  "source": "metrica_game_3_standin"
+}

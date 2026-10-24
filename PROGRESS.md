@@ -15,12 +15,14 @@
 - [x] **A.10 Train frame-level model (Stage 3a)** (`src/mtah/models/baseline_model.py`, `tests/test_model.py`; LightGBM trained on simulated-noise Metrica Game 1 evaluated on Game 3 EPTS; achieved +0.0474 spellF1 gain over nearest-player baseline with 90% CI [+0.0005, +0.0969], significant under bootstrap).
 
 
-- [ ] **A.11 Pre-build detector scripts & calibrate_noise.py** (Auto-skips if video/weights/GPU missing).
+- [x] **A.11 Pre-build detector scripts & calibrate_noise.py** (`scripts/calibrate_noise.py`, `scripts/run_detector.py`, `src/mtah/healing/detector.py`; auto-skips with clear plain-English diagnostics when match video/weights/GPU are absent; stand-in support tested).
+- [x] **A.12 End-to-end one-command pipeline (`scripts/run_all.py`)** (Full S0–S7 pipeline pre-built; preflight check lists any missing files; `--standin` runs seamlessly on Metrica Game 3 EPTS; ready to generate `submissions/<team>.csv` upon unzipping match data).
 
 ## Phase B: Real Match Data Ingestion (Triggered Upon Unzipping Data)
 - [ ] **B.1 Ingest & alignment verification** (Verify `load_atd.py`, frame alignment, team assignment, graded mask from `games.py`).
 - [ ] **B.2 Calibrate noise simulator** (`calibrate_noise.py` on real ATD distributions).
 - [ ] **B.3 End-to-end pipeline run (`scripts/run_all.py`)** (Generate `submissions/<team>.csv`, validate, score on public window for correctness).
+
 - [ ] **B.4 Smart Tagging integration** (Self-supervised proxy validation without public GT).
 - [ ] **B.5 Detector evaluation** (Tactical ball detection experiment if video present).
 

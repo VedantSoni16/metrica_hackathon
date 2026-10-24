@@ -63,8 +63,9 @@ def need(tool):
 
 
 def lfs_available():
-    r = subprocess.run(["git", "lfs", "version"], capture_output=True, text=True)
+    r = subprocess.run(["git", "lfs", "version"], check=False, capture_output=True, text=True)
     return r.returncode == 0
+
 
 
 def clone(name, info, sparse=None):
@@ -85,7 +86,7 @@ def clone(name, info, sparse=None):
                      "Install: https://git-lfs.com  then run:  git lfs install   and re-run this script.")
         run(["git", "lfs", "install", "--local"], cwd=dest)
         run(["git", "lfs", "pull"], cwd=dest)
-    sha = subprocess.run(["git", "rev-parse", "HEAD"], cwd=dest, capture_output=True, text=True).stdout.strip()
+    sha = subprocess.run(["git", "rev-parse", "HEAD"], check=False, cwd=dest, capture_output=True, text=True).stdout.strip()
     return {"path": str(dest.relative_to(ROOT)), "commit": sha, "url": info["url"],
             "what": info["what"], "licence_note": info["licence_note"],
             "downloaded": str(date.today())}
