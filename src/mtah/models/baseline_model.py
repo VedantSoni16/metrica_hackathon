@@ -29,8 +29,10 @@ class PossessionClassifier:
             "subsample": subsample,
             "colsample_bytree": colsample_bytree,
             "random_state": random_state,
+            "deterministic": True,
+            "num_threads": 1,
             "verbosity": -1,
-            "n_jobs": -1,
+            "n_jobs": 1,
         }
         self.n_estimators = n_estimators
         self.booster = None
@@ -64,29 +66,7 @@ class PossessionClassifier:
 
 
 def run_nearest_player_baseline(ball_xy, player_h, player_a, window=50):
-    """Implement reference nearest-player-majority-vote baseline from starter/baseline.py.
-
-    Floor to beat:
-    - Where ball is missing -> D (2)
-    - Where ball is present: nearest player gets ball (0=H, 1=A)
-    - Centered majority vote over +/- window frames.
-
-    Parameters
-    ----------
-    ball_xy : np.ndarray
-        (T, 2) ball positions in metres.
-    player_h : np.ndarray
-        (T, N_H, 2) Home player positions.
-    player_a : np.ndarray
-        (T, N_A, 2) Away player positions.
-    window : int
-        Half-width of majority vote smoothing window.
-
-    Returns
-    -------
-    pred : np.ndarray
-        (T,) int8 array in {0, 1, 2}.
-    """
+    """Implement reference nearest-player-majority-vote baseline from starter/baseline.py."""
     T = len(ball_xy)
     pred_raw = np.full(T, 2, dtype=np.int8)  # default Dead
 
@@ -98,15 +78,12 @@ def run_nearest_player_baseline(ball_xy, player_h, player_a, window=50):
         diff_a = player_a[valid_ball] - ball_xy[valid_ball, None, :]
         dist_a = np.nanmin(np.hypot(diff_a[:, :, 0], diff_a[:, :, 1]), axis=1)
 
-        # 0 = Home, 1 = Away
         team_choice = np.where(dist_h <= dist_a, 0, 1).astype(np.int8)
         pred_raw[valid_ball] = team_choice
 
     if window <= 0:
         return pred_raw
 
-    # Centered majority vote over +/- window
-    # One-hot counts via cumulative sum
     smoothed = np.empty(T, dtype=np.int8)
     one_hot = np.zeros((T, 3), dtype=np.int32)
     for c in (0, 1, 2):
@@ -120,3 +97,24 @@ def run_nearest_player_baseline(ball_xy, player_h, player_a, window=50):
         smoothed[t] = int(np.argmax(window_counts))
 
     return smoothed
+
+
+def find_best_nearest_player_baseline(ball_xy, player_h, player_a, y_true, windows=(25, 50, 125)):
+    """Evaluate nearest-player baseline across candidate smoothing windows and return the best."""
+    import possession_metrics as pm
+
+    best_w = None
+    best_score = -1.0
+    best_pred = None
+
+    for w in windows:
+        pred = run_nearest_player_baseline(ball_xy, player_h, player_a, window=w)
+        eval_res = pm.evaluate(y_true, pred, bootstrap_n=0)
+        score = float(eval_res["spell_f1_mean"])
+        if score > best_score:
+            best_score = score
+            best_w = w
+            best_pred = pred
+
+    return {"best_window": best_w, "best_spell_f1": best_score, "pred": best_pred}
+
