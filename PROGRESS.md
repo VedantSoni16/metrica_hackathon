@@ -11,8 +11,9 @@
 - [x] **A.7 External data download** (Verified `external_data/SOURCES.json`, Metrica Games 1–3, and SkillCorner 20 matches with full LFS tracking files present).
 - [x] **A.8 Silver label derivation** (`src/mtah/labels/metrica.py`, `tests/test_labels.py`; derived H/A/D silver labels from Metrica events; sanity checks verified on Game 1 and Game 3).
 
-- [ ] **A.9 ATD noise simulator & feature extraction library** (Kinematics, soft influence, control proxy, dead-ball cues; tested on Metrica Game 3 EPTS).
+- [x] **A.9 ATD noise simulator & feature extraction library** (`src/mtah/healing/ball.py`, `src/mtah/sim/noise.py`, `src/mtah/io/atd.py`, `src/mtah/features/extractor.py`, `tests/test_features_healing.py`; 14 unit tests passing; 46 features extracted from Game 3 EPTS).
 - [ ] **A.10 Train frame-level model (Stage 3a)** (LightGBM on simulated noise Metrica; evaluate with leave-one-game-out CV + decoder).
+
 - [ ] **A.11 Pre-build detector scripts & calibrate_noise.py** (Auto-skips if video/weights/GPU missing).
 
 ## Phase B: Real Match Data Ingestion (Triggered Upon Unzipping Data)
