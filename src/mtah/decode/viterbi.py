@@ -94,12 +94,12 @@ def viterbi_log(log_emit, log_trans, log_start=None):
     return path
 
 
-def scaled_log_emissions(post, prior, w=None, eps=1e-6):
+def scaled_log_emissions(post, prior, w=None, beta=1.0, eps=1e-6):
     """Compute reliability-weighted log emission likelihoods.
 
     Converts calibrated posterior P(y|x) into scaled log Bayes factors:
-        log P(x|y) ~ log P(y|x) - log P(y)
-    Weighted by frame reliability w_t in (0, 1].
+        log P(x|y) ~ beta * w_t * (log P(y|x) - log P(y))
+    Weighted by frame reliability w_t in (0, 1] and emission scale beta.
 
     Parameters
     ----------
@@ -109,6 +109,8 @@ def scaled_log_emissions(post, prior, w=None, eps=1e-6):
         (K,) class prior frequencies.
     w : np.ndarray, optional
         (T,) reliability weights in (0, 1]. If None, all ones.
+    beta : float
+        Emission inverse temperature / scaling factor (default 1.0).
     eps : float
         Numerical floor.
 
@@ -122,7 +124,6 @@ def scaled_log_emissions(post, prior, w=None, eps=1e-6):
     if post.ndim != 2 or post.shape[1] != len(prior):
         raise ValueError(f"post shape {post.shape} incompatible with prior shape {prior.shape}")
 
-
     if w is None:
         w_factor = 1.0
     else:
@@ -134,4 +135,4 @@ def scaled_log_emissions(post, prior, w=None, eps=1e-6):
 
     # Scaled log-odds
     log_odds = np.log(post + eps) - np.log(prior + eps)
-    return w_factor * log_odds
+    return (beta * w_factor) * log_odds

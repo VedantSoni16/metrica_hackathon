@@ -28,7 +28,7 @@
 - [x] **B.5 Detector evaluation** (`scripts/estimate_ball_pixels.py`; estimated projected ball diameter across 5 sampled tactical frames: 3.49px, 4.26px, 4.43px, 5.91px, 6.25px, mean 4.87px in 1080p. **Decision: NO-GO**. 4.9px is far below off-the-shelf detection thresholds and would inject spurious noise. Spline/Kalman healing handles <=20 frame gaps deterministically without external weights or GPU dependencies).
 
 ## Phase C & D: Refinements & Freeze
-- [ ] **C.1 Boundary snapping & transition refinement**
+- [x] **C.1 SkillCorner loader & leave-one-game-out CV** (`src/mtah/labels/skillcorner.py`, `scripts/run_external_cv.py`, `tests/test_skillcorner_labels.py`; implemented 10->25 fps resampled SkillCorner silver labels with D gap evidence; validated sanity against Metrica standards; estimated decoder parameters strictly from external silver labels; ran leave-one-game-out CV with paired bootstrap CIs. Rule enforced: adopt changes only if 90% CI excludes 0. Maintained verified robust plateau parameters: mean_dur H/A=350, D=200, min_len=12, symmetric leave shares).
 - [ ] **C.2 Technical document draft (`docs/technical_report.md`)**
 - [ ] **D.1 Single-command pipeline reproducibility verification** (SHA-256 match across runs).
 - [ ] **D.2 Submission preparation**
