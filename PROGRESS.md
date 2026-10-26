@@ -20,7 +20,7 @@
 - [x] **A.13 Pre-data hardening** (CV window grid (25, 50, 125) benchmark comparator verified; `scripts/run_all.py` supports `--team-name`, strict tactical-only preflight, and built-in run-twice SHA-256 byte-identical validation with LightGBM `deterministic=True`, `num_threads=1`, fixed seeds).
 
 ## Phase B: Real Match Data Ingestion (Triggered Upon Unzipping Data)
-- [ ] **B.1 Ingest & alignment verification** (Verify `load_atd.py`, frame alignment, team assignment, graded mask from `games.py`).
+- [x] **B.1 Ingest & alignment verification** (`scripts/verify_ingest.py`, `reports/ingest_report.md`; verified 199,319 frames, `video_frame = frame_id - 1`, 158,857 graded frames across both halves, 100% tactical homography validity, Home=Barcelona mapping confirmed, 40.69% ball missing, 20.49 mean tracked players, 638 Smart Tagging instances with 36 N/A; fixed float FrameRate parsing in `src/mtah/io/atd.py`).
 - [ ] **B.2 Calibrate noise simulator** (`calibrate_noise.py` on real ATD distributions).
 - [ ] **B.3 End-to-end pipeline run (`scripts/run_all.py`)** (Generate `submissions/<team>.csv`, validate, score on public window for correctness).
 

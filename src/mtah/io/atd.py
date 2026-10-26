@@ -45,12 +45,17 @@ def parse_epts_metadata(meta_path):
     fps = 25
     fr = root.find(".//FrameRate")
     if fr is not None and fr.text:
-        fps = int(fr.text)
+        fps = int(float(fr.text))
+
+    team_names = {t.get("id"): t.findtext("Name") for t in root.iter("Team")}
 
     return {
         "pitch_size": pitch_size,
         "home_id": home_id,
         "away_id": away_id,
+        "home_name": team_names.get(home_id, "Home"),
+        "away_name": team_names.get(away_id, "Away"),
+        "team_names": team_names,
         "slot_teams": slot_teams,
         "frame_rate": fps,
     }
