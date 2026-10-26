@@ -21,7 +21,7 @@
 
 ## Phase B: Real Match Data Ingestion (Triggered Upon Unzipping Data)
 - [x] **B.1 Ingest & alignment verification** (`scripts/verify_ingest.py`, `reports/ingest_report.md`; verified 199,319 frames, `video_frame = frame_id - 1`, 158,857 graded frames across both halves, 100% tactical homography validity, Home=Barcelona mapping confirmed, 40.69% ball missing, 20.49 mean tracked players, 638 Smart Tagging instances with 36 N/A; fixed float FrameRate parsing in `src/mtah/io/atd.py`).
-- [ ] **B.2 Calibrate noise simulator** (`calibrate_noise.py` on real ATD distributions).
+- [x] **B.2 Calibrate noise simulator** (`scripts/calibrate_noise.py` executed on real graded ATD; measured ball missing 40.69%, mean missing run 430.95, mean active players 20.49, jitter ball=0.0082m, player=0.0016m; saved to `configs/noise_params.json`; wired into `src/mtah/sim/noise.py`).
 - [ ] **B.3 End-to-end pipeline run (`scripts/run_all.py`)** (Generate `submissions/<team>.csv`, validate, score on public window for correctness).
 
 - [ ] **B.4 Smart Tagging integration** (Self-supervised proxy validation without public GT).

@@ -1,8 +1,21 @@
 {
-  "n_frames": 20000,
-  "ball_missing_fraction": 0.297,
-  "mean_missing_run_len": 258.2608695652174,
-  "median_missing_run_len": 194.0,
-  "mean_active_players": 22.0,
-  "source": "metrica_game_3_standin"
+  "n_frames": 158857,
+  "ball_missing_fraction": 0.40692572565263097,
+  "mean_missing_run_len": 430.9533333333333,
+  "median_missing_run_len": 268.0,
+  "p25_missing_run_len": 152.25,
+  "p75_missing_run_len": 526.5,
+  "p90_missing_run_len": 845.2999999999995,
+  "max_missing_run_len": 5537,
+  "short_gaps_frac_le_20": 0.10666666666666667,
+  "mean_active_players": 20.487419503075092,
+  "mean_home_players": 10.201470504919518,
+  "mean_away_players": 10.285948998155574,
+  "player_jitter_m": 0.0015600960787168923,
+  "player_speed_mean_mps": 1.7366411333927114,
+  "player_speed_p95_mps": 4.6605417251586925,
+  "ball_jitter_m": 0.008152109177129416,
+  "ball_speed_mean_mps": 6.529114641126557,
+  "ball_speed_p95_mps": 17.073619842529293,
+  "source": "real_BAR-ATH_atd_graded"
 }
