@@ -47,3 +47,25 @@ def test_nearest_player_baseline():
     assert np.all(preds[:20] == 0)
     # Final frames should be Dead (2)
     assert np.all(preds[30:] == 2)
+
+
+def test_find_best_nearest_player_baseline():
+    from mtah.models.baseline_model import find_best_nearest_player_baseline
+
+    T = 100
+    # Create synthetic ball and player trajectory
+    ball = np.zeros((T, 2))
+    ball[:50] = [20.0, 30.0]
+    ball[50:] = [40.0, 30.0]
+
+    h_players = np.ones((T, 5, 2)) * 20.0
+    a_players = np.ones((T, 5, 2)) * 40.0
+
+    y_true = np.zeros(T, dtype=np.int8)
+    y_true[:50] = 0
+    y_true[50:] = 1
+
+    res = find_best_nearest_player_baseline(ball, h_players, a_players, y_true, windows=(25, 50, 125))
+    assert res["best_window"] in (25, 50, 125)
+    assert res["best_spell_f1"] > 0.8
+    assert len(res["pred"]) == T

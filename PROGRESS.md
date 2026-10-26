@@ -17,6 +17,7 @@
 
 - [x] **A.11 Pre-build detector scripts & calibrate_noise.py** (`scripts/calibrate_noise.py`, `scripts/run_detector.py`, `src/mtah/healing/detector.py`; auto-skips with clear plain-English diagnostics when match video/weights/GPU are absent; stand-in support tested).
 - [x] **A.12 End-to-end one-command pipeline (`scripts/run_all.py`)** (Full S0–S7 pipeline pre-built; preflight check lists any missing files; `--standin` runs seamlessly on Metrica Game 3 EPTS; ready to generate `submissions/<team>.csv` upon unzipping match data).
+- [x] **A.13 Pre-data hardening** (CV window grid (25, 50, 125) benchmark comparator verified; `scripts/run_all.py` supports `--team-name`, strict tactical-only preflight, and built-in run-twice SHA-256 byte-identical validation with LightGBM `deterministic=True`, `num_threads=1`, fixed seeds).
 
 ## Phase B: Real Match Data Ingestion (Triggered Upon Unzipping Data)
 - [ ] **B.1 Ingest & alignment verification** (Verify `load_atd.py`, frame alignment, team assignment, graded mask from `games.py`).

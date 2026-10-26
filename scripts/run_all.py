@@ -181,6 +181,38 @@ def run_real_pipeline(clf, paths, team_name="solution"):
     print(f"      Rows:             {meta_info['n_rows']}")
     print(f"      Counts:           {meta_info['label_counts']}")
 
+    # Built-in run-twice check for determinism (LightGBM num_threads=1, deterministic=True, fixed seeds)
+    print("[Deterministic Check] Re-running inference pass 2 to verify byte-identical output...")
+    pass2_halves = []
+    for half, first, last in blocks:
+        h_slice = slice(first, last + 1)
+        b_xy = data["ball_xy"][h_slice]
+        p_h = data["player_h"][h_slice]
+        p_a = data["player_a"][h_slice]
+        healed_2 = heal_ball_trajectory(b_xy, max_gap=20)
+        X_half_2 = extract_frame_features(
+            healed_2["ball_xy"],
+            p_h,
+            p_a,
+            ball_imputed=healed_2["ball_imputed"],
+            ball_missing=healed_2["ball_missing"],
+            ball_missing_run_len=healed_2["ball_missing_run_len"],
+            pitch_size=pitch_size,
+        )
+        post_2 = clf.predict_proba(X_half_2)
+        log_emit_2 = scaled_log_emissions(post_2, prior, healed_2["ball_reliability"])
+        decoded_path_2 = viterbi_log(log_emit_2, log_trans)
+        smoothed_path_2 = min_spell_merge(decoded_path_2, post_2, min_len=12)
+        pass2_halves.append(smoothed_path_2)
+
+    sub_df_2 = create_full_match_submission(pass2_halves[0], pass2_halves[1], game=GAME)
+    import hashlib
+    sha1 = meta_info["sha256"]
+    sha2 = hashlib.sha256(sub_df_2.to_csv(index=False).encode("utf-8")).hexdigest()
+    if sha1 != sha2:
+        raise RuntimeError(f"DETERMINISM CHECK FAILED: Pass 1 ({sha1}) != Pass 2 ({sha2})")
+    print(f"      [OK] Deterministic check passed: SHA-256 matches exactly across runs ({sha1[:16]}...).")
+
     # Run official validator
     print("[5/5] Running official validate_submission.py check...")
     validator = ROOT / "evaluation/validate_submission.py"
@@ -190,7 +222,12 @@ def run_real_pipeline(clf, paths, team_name="solution"):
 
 def main():
     parser = argparse.ArgumentParser(description="End-to-end MTAH-2027 solution pipeline")
-    parser.add_argument("--team", default="solution", help="Team name for submission CSV")
+    parser.add_argument(
+        "--team-name", "--team",
+        dest="team_name",
+        default="Yamal Fanboys",
+        help="Team name for submission CSV (default: Yamal Fanboys)",
+    )
     parser.add_argument("--standin", action="store_true", help="Run on Metrica Game 3 stand-in")
     parser.add_argument("--data-dir", default=None, help="Match data directory")
     args = parser.parse_args()
@@ -199,7 +236,7 @@ def main():
     print("  More Than A Hack 2027: Ball Possession Solution Pipeline")
     print("=====================================================================")
 
-    # Preflight Check
+    # Preflight Check - requires only data/tactical/
     missing_files, paths = preflight_check(game=GAME, data_dir=args.data_dir)
 
     if missing_files and not args.standin:
@@ -218,9 +255,9 @@ def main():
     clf = train_external_model()
 
     if args.standin or missing_files:
-        run_standin_pipeline(clf, team_name=args.team)
+        run_standin_pipeline(clf, team_name=args.team_name)
     else:
-        run_real_pipeline(clf, paths, team_name=args.team)
+        run_real_pipeline(clf, paths, team_name=args.team_name)
 
 
 if __name__ == "__main__":
