@@ -10,6 +10,42 @@ question to answer with it.
 
 ---
 
+## Solution Reproduction (Team: Yamal Fanboys)
+
+This repository contains the complete, 100% deterministic, zero-leakage solution pipeline for team **Yamal Fanboys**.
+
+### 1. Installation & Environment
+```bash
+python -m venv venv
+# On Windows: venv\Scripts\activate | On Linux/macOS: source venv/bin/activate
+pip install -r requirements-solution.txt
+```
+
+### 2. Generate Submission (End-to-End One Command)
+Ensure match tactical assets are in `data/tactical/` (or run with `--standin` on external data).
+```bash
+python scripts/run_all.py --team-name "Yamal Fanboys"
+```
+This single command executes:
+- External training on Metrica Sports data with calibrated real-match ATD noise (`configs/noise_params.json`).
+- Ball healing (cubic spline + Kalman smoothing on gaps $\le 20$ frames) and reliability weighting.
+- 46 kinematic and spatial influence features.
+- Calibrated LightGBM frame classifier (`deterministic=True`, `num_threads=1`).
+- Structured 3-state log-Viterbi decoder with empirical transition parameters.
+- Post-processing min-spell merge and exact half grid boundary masking ($X$ on unplayed frames).
+- Built-in automatic run-twice SHA-256 byte-identical validation.
+- Output generated at: `submissions/Yamal Fanboys.csv` (SHA-256: `d83a391ae0e257a840dd5e6c33735c8467257bab1fe9bde7778be14bc3e6ee50`).
+
+### 3. Validate Submission
+```bash
+python evaluation/validate_submission.py "submissions/Yamal Fanboys.csv"
+```
+
+### 4. Technical Documentation
+Full technical documentation covering approach, assets used/dropped, external data provenance, possession rules, limitations, and ablation tables is in [docs/technical_report.md](docs/technical_report.md).
+
+---
+
 ## The task
 
 **For every frame of the match, say who has the ball.**

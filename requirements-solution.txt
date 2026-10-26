@@ -1,0 +1,7 @@
+# Pinned requirements for Yamal Fanboys MTAH-2027 solution
+numpy==2.2.6
+pandas==2.3.3
+scipy==1.15.3
+lightgbm==4.7.0
+pytest==9.1.1
+ruff==0.17.2

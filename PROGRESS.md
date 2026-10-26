@@ -29,6 +29,6 @@
 
 ## Phase C & D: Refinements & Freeze
 - [x] **C.1 SkillCorner loader & leave-one-game-out CV** (`src/mtah/labels/skillcorner.py`, `scripts/run_external_cv.py`, `tests/test_skillcorner_labels.py`; implemented 10->25 fps resampled SkillCorner silver labels with D gap evidence; validated sanity against Metrica standards; estimated decoder parameters strictly from external silver labels; ran leave-one-game-out CV with paired bootstrap CIs. Rule enforced: adopt changes only if 90% CI excludes 0. Maintained verified robust plateau parameters: mean_dur H/A=350, D=200, min_len=12, symmetric leave shares).
-- [ ] **C.2 Technical document draft (`docs/technical_report.md`)**
-- [ ] **D.1 Single-command pipeline reproducibility verification** (SHA-256 match across runs).
-- [ ] **D.2 Submission preparation**
+- [x] **C.2 Technical document draft (`docs/technical_report.md`)** (Comprehensive report drafted following SUBMISSION.md covering approach, assets used/dropped, external data commit SHAs, IFAB possession rules, limitations, reproduction, and ablation table).
+- [x] **D.1 Single-command pipeline reproducibility verification** (Executed full pipeline twice from clean state; byte-identical match confirmed with SHA-256 `d83a391ae0e257a840dd5e6c33735c8467257bab1fe9bde7778be14bc3e6ee50`).
+- [x] **D.2 Submission preparation** (`submissions/Yamal Fanboys.csv` generated, validated via `evaluation/validate_submission.py`; `requirements-solution.txt` pinned; `README.md` updated with exact reproduction instructions).
