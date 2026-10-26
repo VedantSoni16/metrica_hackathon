@@ -25,7 +25,7 @@
 - [x] **B.3 End-to-end pipeline run (`scripts/run_all.py`)** (Generated `submissions/Yamal Fanboys.csv` with SHA-256 `d83a391ae0e2...`; verified deterministic pass 1 == pass 2; validated 199,319 rows with `validate_submission.py`; scored once on public window: 18 possessions vs 17 GT, mean dur 13.4s vs 14.2s GT, temporal/semantic alignment confirmed).
 
 - [x] **B.4 Smart Tagging integration** (`scripts/analyze_smart_tagging.py`; self-supervised agreement against nearest-player ball team confirmed clear phase semantics: `BUILD UP` 75.8% and `PROGRESSION` 69.6% attacking/in-possession; `DEFENDING IN ATTACKING/MIDDLE THIRD` 75.8%/69.6% opponent possession. Omitted from training features since external data lacks Smart Tagging schemas and external-CV ablation does not support unmatched features).
-- [ ] **B.5 Detector evaluation** (Tactical ball detection experiment if video present).
+- [x] **B.5 Detector evaluation** (`scripts/estimate_ball_pixels.py`; estimated projected ball diameter across 5 sampled tactical frames: 3.49px, 4.26px, 4.43px, 5.91px, 6.25px, mean 4.87px in 1080p. **Decision: NO-GO**. 4.9px is far below off-the-shelf detection thresholds and would inject spurious noise. Spline/Kalman healing handles <=20 frame gaps deterministically without external weights or GPU dependencies).
 
 ## Phase C & D: Refinements & Freeze
 - [ ] **C.1 Boundary snapping & transition refinement**
