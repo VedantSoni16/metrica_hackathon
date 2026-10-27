@@ -196,4 +196,40 @@ def extract_frame_features(
     features["dist_goal_h"] = np.hypot(ball_xy[:, 0] - goal_h[0], ball_xy[:, 1] - goal_h[1])
     features["dist_goal_a"] = np.hypot(ball_xy[:, 0] - goal_a[0], ball_xy[:, 1] - goal_a[1])
 
+    # --- Group G: Touch-Detection Proxies ---
+    # G1: Ball velocity discontinuity (|dv/dt|) — spikes at first contact
+    ball_vel_diff = np.full(T, np.nan, dtype=np.float32)
+    if T >= 3:
+        bvx = ball_vel[:, 0]
+        bvy = ball_vel[:, 1]
+        # Forward difference of velocity vectors
+        dvx = np.full(T, np.nan)
+        dvy = np.full(T, np.nan)
+        dvx[1:-1] = bvx[2:] - bvx[:-2]
+        dvy[1:-1] = bvy[2:] - bvy[:-2]
+        ball_vel_diff[1:-1] = np.hypot(dvx[1:-1], dvy[1:-1])
+    features["ball_vel_discontinuity"] = ball_vel_diff
+
+    # Rolling max of velocity discontinuity (±3 frames) — broadened touch indicator
+    vd_series = pd.Series(ball_vel_diff)
+    features["ball_vel_disc_roll3"] = vd_series.rolling(7, min_periods=1, center=True).max().to_numpy(dtype=np.float32)
+
+    # G2: Local minima of min-distance (ball-player proximity dip = touch indicator)
+    # For each team: proximity_dip[t] = 1 if min_dist is a local minimum in a 5-frame window
+    for name, arr in (("h", min_dist_h), ("a", min_dist_a)):
+        dip = np.zeros(T, dtype=np.float32)
+        for t in range(2, T - 2):
+            if np.isfinite(arr[t]) and arr[t] <= arr[t-1] and arr[t] <= arr[t+1] and arr[t] < 3.0:
+                    dip[t] = 1.0
+        features[f"touch_dip_{name}"] = dip
+        # Rolling sum of dips over ±5 frames: local touch density
+        features[f"touch_dip_{name}_roll5"] = pd.Series(dip).rolling(11, min_periods=1, center=True).sum().to_numpy(dtype=np.float32)
+
+    # G3: Rate of change of min-distance (negative = approaching, positive = receding)
+    for name, arr in (("h", min_dist_h), ("a", min_dist_a)):
+        ddist = np.full(T, np.nan, dtype=np.float32)
+        if T >= 3:
+            ddist[1:-1] = (arr[2:] - arr[:-2]) * fps / 2.0
+        features[f"ddist_{name}"] = ddist
+
     return pd.DataFrame(features)

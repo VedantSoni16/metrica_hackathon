@@ -46,6 +46,11 @@ def calibrate_from_arrays(ball_xy, player_h, player_a, fps=25.0):
         p90_miss_run = float(np.percentile(run_lengths, 90))
         max_miss_run = int(np.max(run_lengths))
         short_gaps_frac = float(np.mean([r <= 20 for r in run_lengths]))
+        # In-play dropouts: runs <=200 frames (<= 8 s).  The overall mean mixes
+        # these with long dead-ball gaps (hundreds of frames) which are NOT
+        # independent tracking dropouts and should not drive noise simulation.
+        inplay_runs = [r for r in run_lengths if r <= 200]
+        mean_miss_run_inplay = float(np.mean(inplay_runs)) if inplay_runs else min(mean_miss_run, 50.0)
     else:
         mean_miss_run = 25.0
         median_miss_run = 20.0
@@ -54,6 +59,7 @@ def calibrate_from_arrays(ball_xy, player_h, player_a, fps=25.0):
         p90_miss_run = 80.0
         max_miss_run = 100
         short_gaps_frac = 0.5
+        mean_miss_run_inplay = 25.0
 
     # Player visibility
     h_vis = ~np.isnan(player_h[:, :, 0])
@@ -115,6 +121,10 @@ def calibrate_from_arrays(ball_xy, player_h, player_a, fps=25.0):
         "n_frames": T,
         "ball_missing_fraction": miss_frac,
         "mean_missing_run_len": mean_miss_run,
+        "mean_missing_run_len_inplay": mean_miss_run_inplay,  # runs <=200 frames (in-play dropouts)
+        # Units: all jitter values are in METRES (coords converted by pitch_size before calling)
+        "player_jitter_m": player_jitter_m,
+        "ball_jitter_m": ball_jitter_m,
         "median_missing_run_len": median_miss_run,
         "p25_missing_run_len": p25_miss_run,
         "p75_missing_run_len": p75_miss_run,
@@ -124,10 +134,8 @@ def calibrate_from_arrays(ball_xy, player_h, player_a, fps=25.0):
         "mean_active_players": mean_active_players,
         "mean_home_players": mean_h_players,
         "mean_away_players": mean_a_players,
-        "player_jitter_m": player_jitter_m,
         "player_speed_mean_mps": player_speed_mean,
         "player_speed_p95_mps": player_speed_p95,
-        "ball_jitter_m": ball_jitter_m,
         "ball_speed_mean_mps": ball_speed_mean,
         "ball_speed_p95_mps": ball_speed_p95,
     }

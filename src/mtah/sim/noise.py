@@ -1,4 +1,13 @@
-"""ATD-like noise simulator for realistic corruptions of clean tracking data."""
+"""ATD-like noise simulator for realistic corruptions of clean tracking data.
+
+Unit convention
+---------------
+- All coordinate inputs (ball_xy, player_xy_*) must be in METRES.
+- ball_jitter_m and player_jitter_m are Gaussian std devs in METRES.
+- mean_miss_run is in FRAMES (multiply by 1/fps to get seconds).
+  Use mean_miss_run_inplay (runs <=200 frames) to avoid inflating the
+  simulation with long dead-ball gaps that are not tracking dropouts.
+"""
 
 import numpy as np
 
@@ -110,9 +119,17 @@ def apply_atd_noise(
         if miss_frac is None:
             miss_frac = calib.get("ball_missing_fraction", 0.407)
         if mean_miss_run is None:
-            # Use bounded mean run length for Markov stability
-            mean_miss_run = min(float(calib.get("mean_missing_run_len", 100.0)), 150.0)
+            # Prefer in-play run length (<=200 frames); fall back to bounded overall mean.
+            # The overall mean_missing_run_len (430.9) mixes dead-ball gaps with in-play
+            # dropouts and inflates the Markov chain beyond realistic in-play behaviour.
+            raw_inplay = calib.get("mean_missing_run_len_inplay", None)
+            raw_overall = calib.get("mean_missing_run_len", 100.0)
+            if raw_inplay is not None:
+                mean_miss_run = float(raw_inplay)
+            else:
+                mean_miss_run = min(float(raw_overall), 150.0)
         if ball_jitter_m is None:
+            # Units: metres (calibrate_noise.py computes on metre-space coords)
             ball_jitter_m = max(float(calib.get("ball_jitter_m", 0.1)), 0.05)
         if player_jitter_m is None:
             player_jitter_m = max(float(calib.get("player_jitter_m", 0.05)), 0.03)

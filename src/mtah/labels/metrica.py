@@ -105,9 +105,10 @@ def derive_metrica_labels(events_df, n_frames, half_boundaries=None):
        - Lasts until restart SET PIECE (KICK OFF, THROW IN, GOAL KICK, CORNER KICK, FREE KICK).
        - Also dead before the kickoff of each half, during halftime, and after full-time.
     2. Possession owner while alive:
-       - Set to the team performing a controlling event: PASS, RECOVERY, CARRY, SHOT, or SET PIECE restart.
-       - CHALLENGE / BALL LOST leaves ownership with the possessing team until the opponent
-         completes a controlling event (RECOVERY or PASS).
+       - Flipped at the FIRST TOUCH (event Start Frame) by the controlling team.
+       - Controlling events: PASS, RECOVERY, CARRY, SHOT, SET PIECE restart,
+         and CHALLENGE with subtype containing 'WON'.
+       - BALL LOST and CHALLENGE-LOST leave ownership with the current possessing team.
 
     Parameters
     ----------
@@ -128,12 +129,14 @@ def derive_metrica_labels(events_df, n_frames, half_boundaries=None):
     # Sort events chronologically by start frame
     sorted_events = events_df.sort_values(by=["start_frame", "end_frame"]).reset_index(drop=True)
 
-    # Controlling event types
+    # Controlling event types (flip possession at start_frame)
     CONTROLLING = {"PASS", "RECOVERY", "CARRY", "SHOT"}
     # Stoppage events that turn ball DEAD
     STOPPAGES = {"BALL OUT", "FAULT RECEIVED", "CARD"}
     # Restarts that make ball alive again
     RESTARTS = {"KICK OFF", "THROW IN", "GOAL KICK", "CORNER KICK", "FREE KICK", "PENALTY"}
+    # CHALLENGE subtypes indicating the team won the duel (first touch by this team)
+    CHALLENGE_WON_MARKERS = {"WON"}
 
     current_state = D  # Starts dead before kickoff
 
@@ -158,17 +161,20 @@ def derive_metrica_labels(events_df, n_frames, half_boundaries=None):
         # Check event semantics
         is_restart = (ev_type == "SET PIECE") or any(r in ev_subtype for r in RESTARTS)
         is_stoppage = (ev_type in STOPPAGES) or ("GOAL" in ev_subtype and ev_type == "SHOT")
+        # CHALLENGE-WON: flip to the winning team at first touch (start_frame)
+        is_challenge_won = (ev_type == "CHALLENGE") and any(
+            m in ev_subtype for m in CHALLENGE_WON_MARKERS
+        )
 
         if is_stoppage:
             current_state = D
             labels[start_f : end_f + 1] = D
-        elif is_restart or ev_type in CONTROLLING:
+        elif is_restart or ev_type in CONTROLLING or is_challenge_won:
             if ev_team in (H, A):
                 current_state = ev_team
             labels[start_f : end_f + 1] = current_state
         else:
-            # Non-controlling event (e.g. CHALLENGE, BALL LOST)
-            # Ownership remains with current_state
+            # Non-controlling event (CHALLENGE-LOST, BALL LOST): ownership stays
             labels[start_f : end_f + 1] = current_state
 
         last_frame = max(last_frame, end_f + 1)
